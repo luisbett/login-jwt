@@ -1,0 +1,35 @@
+.pink {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #D63AFF;
+    color: #000000;
+    border-radius: 10px;
+    border: 2px solid #2b3137;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.pink:hover {
+    background-color: #0D1116;
+    border: 2px solid #D63AFF;
+    color: #D63AFF;
+}
+
+.red {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #FF3333;
+    color: #000000;
+    border-radius: 10px;
+    border: 2px solid #2b3137;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.red:hover {
+    background-color: #0D1116;
+    border: 2px solid #FF3333;
+    color: #FF3333;
+}
