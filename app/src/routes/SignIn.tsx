@@ -1,9 +1,13 @@
+import { KeyboardEvent, useState } from "react"
+
+import { Link } from "react-router-dom"
+
 import { SiJsonwebtokens } from "react-icons/si"
+
 import Button from "../components/Button"
+import Input from "../components/Input"
 
 import classes from './SignIn.module.css'
-import Input from "../components/Input"
-import { useState } from "react"
 
 export default function SignIn() {
     
@@ -18,6 +22,12 @@ export default function SignIn() {
         setPassword(e.target.value)
     }
 
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        if( e.key === 'Enter') {
+            handleClick()
+        }
+    }
+
     const handleClick = () => {
         console.log('Button clicked')
     }
@@ -28,9 +38,10 @@ export default function SignIn() {
                 <SiJsonwebtokens fill="#D63AFF" size="35px" />
                 <h1>Login with JWT</h1>
             </div>
-            <Input inputType="text" inputPlaceholder="Enter your email..." inputOnChange={handleChangeEmail}/>
-            <Input inputType="password" inputPlaceholder="Enter your password..." inputOnChange={handleChangePassword}/>
-            <Button buttonStyle="pink" buttonTitle="Sign in" buttonClick={handleClick}/>
+            <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={handleChangeEmail} />
+            <Input inputType="password" inputPlaceholder="Enter your password..." inputOnChange={handleChangePassword} inputOnKeyDown={handleKeyDown} />
+            <Button buttonStyle="pink" buttonTitle="Sign in" buttonOnClick={handleClick} />
+            <p>Are you new here? <Link to={'/signup'}>Register now</Link></p>
         </div>
     )
 }
