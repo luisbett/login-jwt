@@ -10,6 +10,9 @@ import NotFound from './routes/NotFound.tsx'
 
 import './index.css'
 
+//If user is logged in
+const token = localStorage.getItem('token')
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -17,7 +20,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <SignIn />
+        element: token ? <Home /> : <SignIn />
       },
       {
         path: '/signup',
@@ -25,7 +28,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/home',
-        element: <Home />
+        element: token ? <Home /> : <SignIn />
       },
       {
         path: '*',
