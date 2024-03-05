@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
 import App from './App.tsx'
 import Home from './routes/Home.tsx'
@@ -20,7 +20,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: token ? <Home /> : <SignIn />
+        element: token ? <Navigate to="/home" replace /> : <SignIn />,
       },
       {
         path: '/signup',
@@ -28,7 +28,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/home',
-        element: token ? <Home /> : <SignIn />
+        element: token ? <Home /> : <Navigate to="/" replace />
       },
       {
         path: '*',

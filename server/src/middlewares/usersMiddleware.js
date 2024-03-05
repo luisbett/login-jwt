@@ -26,12 +26,7 @@ const validateLogin = async (req, res, next) => {
     try {
         const secret = process.env.SECRET
 
-        const token = jwt.sign(
-            {
-                id: user[0].id
-            },
-            secret
-        )
+        const token = jwt.sign({ id: user[0].id }, secret, { expiresIn: '3d' })
 
         res.status(200).json({ message: 'Succesfully authentication', token })
 
