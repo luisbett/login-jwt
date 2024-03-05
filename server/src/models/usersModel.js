@@ -1,7 +1,9 @@
 const sql = require('./connection')
 
+const bcrypt = require('bcrypt')
+
 const findByID = async (id) => {
-    const user = await sql`SELECT name, email FROM users WHERE id = ${id}`
+    const user = await sql`SELECT * FROM users WHERE id = ${id}`
     return user
 }
 
@@ -11,14 +13,16 @@ const findByEmail = async (email) => {
 }
 
 const createUser = async (name, email, password) => {
-    //user bcrypt para criar a hash da password
-    const createdUser = await sql`INSERT INTO users (name, email, password) VALUES (${name}, ${email}, ${password})`
+    const salt = await bcrypt.genSalt(12)
+    const passwordHash = await bcrypt.hash(password, salt)
+    const createdUser = await sql`INSERT INTO users (name, email, password) VALUES (${name}, ${email}, ${passwordHash})`
     return createdUser
 }
 
 const updateUser = async (id, name, email, password) => {
-    //user bcrypt para criar a hash da password
-    const updatedUser = await sql`UPDATE users SET name = ${name}, email = ${email}, password = ${password} WHERE id = ${id}`
+    const salt = await bcrypt.genSalt(12)
+    const passwordHash = await bcrypt.hash(password, salt)
+    const updatedUser = await sql`UPDATE users SET name = ${name}, email = ${email}, password = ${passwordHash} WHERE id = ${id}`
     return updatedUser
 }
 

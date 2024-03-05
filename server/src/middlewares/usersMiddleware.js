@@ -33,7 +33,7 @@ const validateLogin = async (req, res, next) => {
             secret
         )
 
-        res.status(200).json({ message: 'Succesfully authentication', token})
+        res.status(200).json({ message: 'Succesfully authentication', token })
 
     } catch(error) {
         console.log(error)
