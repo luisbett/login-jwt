@@ -1,29 +1,25 @@
 import { KeyboardEvent, useState } from "react"
-
 import { Link, useNavigate } from "react-router-dom"
-
 import toast, { Toaster } from 'react-hot-toast'
-
 import { SiJsonwebtokens } from "react-icons/si"
-
 import Button from "../components/Button"
 import Input from "../components/Input"
-
 import classes from './SignIn.module.css'
+import { UserProps } from "../types/user"
 
 export default function SignIn() {
 
     const navigate = useNavigate()
-    
-    const [ email, setEmail ] = useState('')
-    const [ password, setPassword ] = useState('')
 
-    const handleChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEmail(e.target.value)
-    }
+    //Define state to contain user information
+    const [ user, setUser ] = useState({
+        email: '',
+        password: ''
+    })
 
-    const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPassword(e.target.value)
+    //Generic function
+    const handleChange = <U extends keyof UserProps>(prop: U, value: UserProps[U]) => {
+        setUser({ ...user, [prop]: value})
     }
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -36,8 +32,8 @@ export default function SignIn() {
         await fetch('http://localhost:3333/auth/user', {
             method: 'POST',
             body: JSON.stringify({
-                email,
-                password
+                email: user.email,
+                password: user.password
             }),
             headers: {
                 'Content-type': 'application/json; charset=UTF-8'
@@ -71,8 +67,10 @@ export default function SignIn() {
                 <SiJsonwebtokens fill="#D63AFF" size="35px" />
                 <h1>Login with JWT</h1>
             </div>
-            <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={handleChangeEmail} />
-            <Input inputType="password" inputPlaceholder="Enter your password..." inputOnChange={handleChangePassword} inputOnKeyDown={handleKeyDown} />
+            <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {handleChange('email',e.target.value)}} />
+            <Input inputType="password" inputPlaceholder="Enter your password..." inputOnChange={(e) => {handleChange('password',e.target.value)}} inputOnKeyDown={handleKeyDown} />
+            <p>{user.email}</p>
+            <p>{user.password}</p>
             <Button buttonStyle="pink" buttonTitle="Sign in" buttonOnClick={handleClick} />
             <p>Are you new here? <Link to={'/signup'}>Register now</Link></p>
         </div>

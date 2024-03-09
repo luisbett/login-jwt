@@ -1,26 +1,40 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { FaUserCheck, FaUserEdit } from "react-icons/fa"
 import toast, { Toaster } from 'react-hot-toast'
-import classes from './Home.module.css'
-import Button from "../components/Button"
+import { FaUserCheck, FaUserEdit } from "react-icons/fa"
 import { jwtDecode } from "jwt-decode"
-import { decodedTokenProps } from "../types/decodedToken"
 import Input from "../components/Input"
+import Button from "../components/Button"
+import { decodedTokenProps } from "../types/decodedToken"
+import classes from './Home.module.css'
+import { UserProps } from "../types/user"
 
 export default function Home() {
 
     const navigate = useNavigate()
 
     const [ update, setUpdate ] = useState(false)
-    const [ name, setName ] = useState('Name not found')
-    const [ email, setEmail ] = useState('Email not found')
-    const [ password, setPassword ] = useState('')
 
+    //Define state to contain user information
+    const [ user, setUser ] = useState({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    })
+
+    //Generic function
+    const handleChange = <U extends keyof UserProps>(prop: U, value: UserProps[U]) => {
+        setUser({ ...user, [prop]: value})
+    }
+
+    //Get user data from server
     const getUser = async () => {
 
+        //Get token from localStorage
         const token = localStorage.getItem('token')
 
+        //If token exists
         if(token) {
             const decodedToken = await jwtDecode<decodedTokenProps>(token)
             
@@ -42,9 +56,9 @@ export default function Home() {
             })
             .then((data) => {
                 console.log(data[0])
-                setName(data[0].name)
-                setEmail(data[0].email)
-                setPassword(data[0].password)
+                setUser({ ...user, ['name']: data[0].name})
+                setUser({ ...user, ['email']: data[0].email})
+                setUser({ ...user, ['password']: data[0].password})
             })
             .catch((err) => {
                 //Show errors to user
@@ -57,26 +71,12 @@ export default function Home() {
         }
     }
 
+    //Set effect to getUser function
     useEffect(() => {
         getUser()
     },[])
 
-    const handleUpdate = () => {
-        setUpdate(true)
-    }
-
-    const handleChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setName(e.target.value)
-    }
-
-    const handleChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEmail(e.target.value)
-    }
-
-    const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPassword(e.target.value)
-    }
-
+    //Handle save button click
     const handleSave = async () => {
 
         const token = localStorage.getItem('token')
@@ -89,9 +89,9 @@ export default function Home() {
             await fetch(`http://localhost:3333/users/${userId}`, {
                 method: 'PUT',
                 body: JSON.stringify({
-                    name,
-                    email,
-                    password
+                    name: user.name,
+                    email: user.email,
+                    password: user.password
                 }),
                 headers: {
                     'Content-type': 'application/json; charset=UTF-8',
@@ -120,6 +120,7 @@ export default function Home() {
         setUpdate(false)
     }
 
+    //Handle delete button click
     const handleDelete = async () => {
         
         const token = localStorage.getItem('token')
@@ -161,6 +162,7 @@ export default function Home() {
         }
     }
 
+    //Handle logout button click
     const handleLogout = () => {
         localStorage.removeItem('token')
         navigate('/')
@@ -177,24 +179,25 @@ export default function Home() {
             </div> :
             <div className={classes.title}>
                 <FaUserCheck fill="#D63AFF" size="35px" />
-                <h1>Welcome, {name}</h1>
+                <h1>Welcome, {user.name}</h1>
             </div> }
             { update ? 
-            <Input inputType="text" inputOnChange={handleChangeName} inputDefaultValue={name} /> : 
-            <p>Name: {name}</p> }
+            <Input inputType="text" inputPlaceholder="Enter your name..." inputOnChange={(e) => {handleChange('name',e.target.value)}} inputDefaultValue={user.name} /> : 
+            <p>Name: {user.name}</p> }
             { update ? 
-            <Input inputType="email" inputOnChange={handleChangeEmail} inputDefaultValue={email} /> :
-            <p>Email: {email}</p> }
+            <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {handleChange('email',e.target.value)}} inputDefaultValue={user.email} /> :
+            <p>Email: {user.email}</p> }
             { update ? 
-            <Input inputType="password" inputOnChange={handleChangePassword} inputDefaultValue={password} /> :
-            <p>Password: {password}</p> }
+            <Input inputType="password" inputPlaceholder="Enter your new password..." inputOnChange={(e) => {handleChange('password',e.target.value)}} /> :
+            <p>Password: {user.password}</p> }
+            { update && <Input inputType="password" inputPlaceholder="Confirm your new password..." inputOnChange={(e) => {handleChange('confirmPassword',e.target.value)}} /> }
             { update ?
             <div className={classes.buttons}>
                 <Button buttonStyle="pink" buttonTitle="Save" buttonOnClick={handleSave}/>
                 <Button buttonStyle="red" buttonTitle="Delete account" buttonOnClick={handleDelete}/>
             </div> :
             <div className={classes.buttons}>
-                <Button buttonStyle="pink" buttonTitle="Update details" buttonOnClick={handleUpdate}/>
+                <Button buttonStyle="pink" buttonTitle="Update details" buttonOnClick={() => {setUpdate(true)}}/>
                 <Button buttonStyle="red" buttonTitle="Log out" buttonOnClick={handleLogout}/>
             </div> }
         </div>
