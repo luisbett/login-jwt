@@ -7,6 +7,7 @@ import Input from '../components/Input'
 import classes from './SignUp.module.css'
 import useFetch from '../hooks/useFetch'
 import { UserProps } from '../types/user'
+import useEmail from '../hooks/useEmail'
 
 export default function SignUp() {
 
@@ -26,6 +27,8 @@ export default function SignUp() {
     }
 
     const handleClick = async () => {
+
+        //Validate input fields
         if (validateFields()) {
             const data = await useFetch({ url: 'http://localhost:3333/users', 
                                         method: 'POST', 
@@ -48,11 +51,16 @@ export default function SignUp() {
         }
     }
 
+    //Validate input fields
     const validateFields = () => {
+
+        //Custom hook to validate email
+        let emailError = useEmail(user.email, true)
+
         if(!user.name) {
             toast.error('Name is required')
-        } else if(!user.email) {
-            toast.error('Email is required')
+        } else if(emailError) {
+            toast.error(emailError)
         } else if(!user.password) {
             toast.error('Password is required')
         } else if(!user.confirmPassword) {

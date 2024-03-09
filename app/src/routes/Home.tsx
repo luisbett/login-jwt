@@ -2,12 +2,13 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import toast, { Toaster } from 'react-hot-toast'
 import { FaUserCheck, FaUserEdit } from "react-icons/fa"
-import { jwtDecode } from "jwt-decode"
+import { isExpired, decodeToken } from "react-jwt"
 import Input from "../components/Input"
 import Button from "../components/Button"
 import { decodedTokenProps } from "../types/decodedToken"
 import classes from './Home.module.css'
 import { UserProps } from "../types/user"
+import useEmail from "../hooks/useEmail"
 
 export default function Home() {
 
@@ -36,9 +37,9 @@ export default function Home() {
 
         //If token exists
         if(token) {
-            const decodedToken = await jwtDecode<decodedTokenProps>(token)
+            const decodedToken = decodeToken<decodedTokenProps>(token)
             
-            const userId = decodedToken.id
+            const userId = decodedToken?.id
 
             await fetch(`http://localhost:3333/users/${userId}`, {
                 method: 'GET',
@@ -78,46 +79,50 @@ export default function Home() {
 
     //Handle save button click
     const handleSave = async () => {
+        
+        //Validate input fields
+        if(validateFields()) {
+            
+            const token = localStorage.getItem('token')
 
-        const token = localStorage.getItem('token')
+            if(token) {
+                const decodedToken = decodeToken<decodedTokenProps>(token)
+                
+                const userId = decodedToken?.id
 
-        if(token) {
-            const decodedToken = await jwtDecode<decodedTokenProps>(token)
+                await fetch(`http://localhost:3333/users/${userId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        name: user.name,
+                        email: user.email,
+                        password: user.password
+                    }),
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(async (res) => {
+                    if (!res.ok) {
+                        const errorData = await res.json()
+                        throw new Error(errorData.message || 'Server error') // Throw error with server message if available, otherwise default message
+                    }
+                })
+                .then(() => {
+                    toast.success('Data updated successfully')
+                })
+                .catch((err) => {
+                    //Show errors to user
+                    console.error(err)
+                    toast.error(err.message || 'Error on login, please try again later')
+                })
+            } else {
+                navigate('/')
+                window.location.reload()
+            }
 
-            const userId = decodedToken.id
-
-            await fetch(`http://localhost:3333/users/${userId}`, {
-                method: 'PUT',
-                body: JSON.stringify({
-                    name: user.name,
-                    email: user.email,
-                    password: user.password
-                }),
-                headers: {
-                    'Content-type': 'application/json; charset=UTF-8',
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then(async (res) => {
-                if (!res.ok) {
-                    const errorData = await res.json()
-                    throw new Error(errorData.message || 'Server error') // Throw error with server message if available, otherwise default message
-                }
-            })
-            .then(() => {
-                toast.success('Data updated successfully')
-            })
-            .catch((err) => {
-                //Show errors to user
-                console.error(err)
-                toast.error(err.message || 'Error on login, please try again later')
-            })
-        } else {
-            navigate('/')
-            window.location.reload()
+            setUpdate(false)
         }
-
-        setUpdate(false)
     }
 
     //Handle delete button click
@@ -126,9 +131,9 @@ export default function Home() {
         const token = localStorage.getItem('token')
 
         if(token) {
-            const decodedToken = await jwtDecode<decodedTokenProps>(token)
-
-            const userId = decodedToken.id
+            const decodedToken = decodeToken<decodedTokenProps>(token)
+            
+            const userId = decodedToken?.id
 
             await fetch(`http://localhost:3333/users/${userId}`, {
                 method: 'DELETE',
@@ -167,6 +172,27 @@ export default function Home() {
         localStorage.removeItem('token')
         navigate('/')
         window.location.reload()
+    }
+
+    //Validate input fields
+    const validateFields = () => {
+        
+        //Custom hook to validate email
+        let emailError = useEmail(user.email, true)
+
+        if(!user.name) {
+            toast.error('Name is required')
+        } else if (emailError) {
+            toast.error(emailError)
+        } else if(user.password && !user.confirmPassword) {
+            toast.error('Both password fields are required')
+        } else if(!user.password && user.confirmPassword) {
+            toast.error('Both password fields are required')
+        } else if(user.password !== user.confirmPassword) {
+            toast.error('Passwords does not match')
+        } else {
+            return true
+        }
     }
 
     return(
