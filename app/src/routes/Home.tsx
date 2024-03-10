@@ -15,6 +15,8 @@ export default function Home() {
     const navigate = useNavigate()
 
     const [ update, setUpdate ] = useState(false)
+    const [ isLoadingSave, setIsLoadingSave ] = useState(false)
+    const [ isLoadingDelete, setIsLoadingDelete ] = useState(false)
 
     //Define state to contain user information
     const [ user, setUser ] = useState({
@@ -80,6 +82,8 @@ export default function Home() {
     //Handle save button click
     const handleSave = async () => {
         
+        setIsLoadingSave(true)
+
         //Validate input fields
         if(validateFields()) {
             
@@ -123,10 +127,14 @@ export default function Home() {
 
             setUpdate(false)
         }
+
+        setIsLoadingSave(false)
     }
 
     //Handle delete button click
     const handleDelete = async () => {
+
+        setIsLoadingDelete(true)
         
         const token = localStorage.getItem('token')
 
@@ -165,6 +173,8 @@ export default function Home() {
             navigate('/')
             window.location.reload()
         }
+
+        setIsLoadingDelete(false)
     }
 
     //Handle logout button click
@@ -219,8 +229,8 @@ export default function Home() {
             { update && <Input inputType="password" inputPlaceholder="Confirm your new password..." inputOnChange={(e) => {handleChange('confirmPassword',e.target.value)}} /> }
             { update ?
             <div className={classes.buttons}>
-                <Button buttonStyle="pink" buttonTitle="Save" buttonOnClick={handleSave}/>
-                <Button buttonStyle="red" buttonTitle="Delete account" buttonOnClick={handleDelete}/>
+                <Button buttonStyle="pink" buttonTitle="Save" buttonOnClick={handleSave} isLoading={isLoadingSave} />
+                <Button buttonStyle="red" buttonTitle="Delete account" buttonOnClick={handleDelete} isLoading={isLoadingDelete} />
             </div> :
             <div className={classes.buttons}>
                 <Button buttonStyle="pink" buttonTitle="Update details" buttonOnClick={() => {setUpdate(true)}}/>

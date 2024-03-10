@@ -2,6 +2,9 @@
     width: 100%;
     padding: 10px;
     font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: #D63AFF;
     color: #000000;
     border-radius: 10px;
@@ -20,6 +23,9 @@
     width: 100%;
     padding: 10px;
     font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: #FF3333;
     color: #000000;
     border-radius: 10px;

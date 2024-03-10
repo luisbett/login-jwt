@@ -12,6 +12,8 @@ export default function SignIn() {
 
     const navigate = useNavigate()
 
+    const [ isLoading, setIsLoading ] = useState(false)
+
     //Define state to contain user information
     const [ user, setUser ] = useState({
         email: '',
@@ -33,6 +35,8 @@ export default function SignIn() {
     }
 
     const handleClick = async () => {
+
+        setIsLoading(true)
 
         //Validate input fields
         if(validateFields()) {
@@ -67,6 +71,8 @@ export default function SignIn() {
                 toast.error(err.message || 'Error on login, please try again later')
             })
         }
+
+        setIsLoading(false)
     }
 
     //Validate input fields
@@ -93,7 +99,7 @@ export default function SignIn() {
             </div>
             <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {handleChange('email',e.target.value)}} />
             <Input inputType="password" inputPlaceholder="Enter your password..." inputOnChange={(e) => {handleChange('password',e.target.value)}} inputOnKeyDown={handleKeyDown} />
-            <Button buttonStyle="pink" buttonTitle="Sign in" buttonOnClick={handleClick} />
+            <Button buttonStyle="pink" buttonTitle="Sign in" buttonOnClick={handleClick} isLoading={isLoading} />
             <p>Are you new here? <Link to={'/signup'}>Register now</Link></p>
         </div>
     )

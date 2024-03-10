@@ -13,6 +13,8 @@ export default function SignUp() {
 
     const navigate = useNavigate()
 
+    const [ isLoading, setIsLoading ] = useState(false)
+
     //Define state to contain user information
     const [ user, setUser ] = useState({
         name: '',
@@ -28,8 +30,11 @@ export default function SignUp() {
 
     const handleClick = async () => {
 
+        setIsLoading(true)
+
         //Validate input fields
         if (validateFields()) {
+
             const data = await useFetch({ url: 'http://localhost:3333/users', 
                                         method: 'POST', 
                                         body: { 
@@ -45,10 +50,12 @@ export default function SignUp() {
                     navigate('/')
                 }, 2000)
             } else {
-                toast.error('Error on saving user')
+                toast.error(data.data.message)
                 console.log(data)
             }
         }
+
+        setIsLoading(false)
     }
 
     //Validate input fields
@@ -83,7 +90,7 @@ export default function SignUp() {
             <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {handleChange('email',e.target.value)}}/>
             <Input inputType="password" inputPlaceholder="Enter your password..." inputOnChange={(e) => {handleChange('password',e.target.value)}}/>
             <Input inputType="password" inputPlaceholder="Confirm your password..." inputOnChange={(e) => {handleChange('confirmPassword',e.target.value)}}/>
-            <Button buttonStyle="pink" buttonTitle="Sign up" buttonOnClick={handleClick}/>
+            <Button buttonStyle="pink" buttonTitle="Sign up" buttonOnClick={handleClick} isLoading={isLoading} />
             <p>Already have an account? <Link to={'/'}>Sign in here</Link></p>
         </div>
     )
