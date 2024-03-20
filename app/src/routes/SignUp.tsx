@@ -6,41 +6,38 @@ import Button from '../components/Button'
 import Input from '../components/Input'
 import classes from './SignUp.module.css'
 import useFetch from '../hooks/useFetch'
-import { UserProps } from '../types/user'
 import useEmail from '../hooks/useEmail'
 
 export default function SignUp() {
 
+    //Navigation hook
     const navigate = useNavigate()
 
+    //State that controls loading spinner
     const [ isLoading, setIsLoading ] = useState(false)
 
-    //Define state to contain user information
-    const [ user, setUser ] = useState({
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
-    })
+    //States to control input fields
+    const [ name, setName ] = useState('')
+    const [ email, setEmail ] = useState('')
+    const [ password, setPassword ] = useState('')
+    const [ confirmPassword, setConfirmPassword ] = useState('')
 
-    //Generic function
-    const handleChange = <U extends keyof UserProps>(prop: U, value: UserProps[U]) => {
-        setUser({ ...user, [prop]: value})
-    }
-
+    //Function called on sign up button
     const handleClick = async () => {
 
+        //Set loading spinner to true
         setIsLoading(true)
 
         //Validate input fields
         if (validateFields()) {
 
+            //Call API
             const data = await useFetch({ url: 'http://localhost:3333/users', 
                                         method: 'POST', 
                                         body: { 
-                                            name: user.name,
-                                            email: user.email,
-                                            password: user.password
+                                            name,
+                                            email,
+                                            password
                                         },
                                         token: '' })
 
@@ -55,6 +52,7 @@ export default function SignUp() {
             }
         }
 
+        //Set loading spinner to false
         setIsLoading(false)
     }
 
@@ -62,17 +60,17 @@ export default function SignUp() {
     const validateFields = () => {
 
         //Custom hook to validate email
-        let emailError = useEmail(user.email, true)
+        let emailError = useEmail(email, true)
 
-        if(!user.name) {
+        if(!name) {
             toast.error('Name is required')
         } else if(emailError) {
             toast.error(emailError)
-        } else if(!user.password) {
+        } else if(!password) {
             toast.error('Password is required')
-        } else if(!user.confirmPassword) {
+        } else if(!confirmPassword) {
             toast.error('Confirm password is required')
-        } else if(user.password !== user.confirmPassword) {
+        } else if(password !== confirmPassword) {
             toast.error('Passwords does not match')
         } else {
             return true
@@ -86,10 +84,10 @@ export default function SignUp() {
                 <FaUserPlus fill="#D63AFF" size="35px" />
                 <h1>Create an account</h1>
             </div>
-            <Input inputType="text" inputPlaceholder="Enter your name..." inputOnChange={(e) => {handleChange('name',e.target.value)}}/>
-            <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {handleChange('email',e.target.value)}}/>
-            <Input inputType="password" inputPlaceholder="Enter your password..." inputOnChange={(e) => {handleChange('password',e.target.value)}}/>
-            <Input inputType="password" inputPlaceholder="Confirm your password..." inputOnChange={(e) => {handleChange('confirmPassword',e.target.value)}}/>
+            <Input inputType="text" inputPlaceholder="Enter your name..." inputOnChange={(e) => {setName(e.target.value)}}/>
+            <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {setEmail(e.target.value)}}/>
+            <Input inputType="password" inputPlaceholder="Enter your password..." inputOnChange={(e) => {setPassword(e.target.value)}}/>
+            <Input inputType="password" inputPlaceholder="Confirm your password..." inputOnChange={(e) => {setConfirmPassword(e.target.value)}}/>
             <Button buttonStyle="pink" buttonTitle="Sign up" buttonOnClick={handleClick} isLoading={isLoading} />
             <p>Already have an account? <Link to={'/'}>Sign in here</Link></p>
         </div>

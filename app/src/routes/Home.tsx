@@ -7,29 +7,27 @@ import Input from "../components/Input"
 import Button from "../components/Button"
 import { decodedTokenProps } from "../types/decodedToken"
 import classes from './Home.module.css'
-import { UserProps } from "../types/user"
 import useEmail from "../hooks/useEmail"
+import useFetch from "../hooks/useFetch"
 
 export default function Home() {
 
+    //Navigation hook
     const navigate = useNavigate()
 
+    //State to control if show inputs for editing fields
     const [ update, setUpdate ] = useState(false)
+
+    //States to control loading spinner buttons
     const [ isLoadingSave, setIsLoadingSave ] = useState(false)
     const [ isLoadingDelete, setIsLoadingDelete ] = useState(false)
 
-    //Define state to contain user information
-    const [ user, setUser ] = useState({
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
-    })
-
-    //Generic function
-    const handleChange = <U extends keyof UserProps>(prop: U, value: UserProps[U]) => {
-        setUser({ ...user, [prop]: value})
-    }
+    //States to control input fields
+    const [ firstName, setFirstName ] = useState('')
+    const [ fullName, setFullName ] = useState('')
+    const [ email, setEmail ] = useState('')
+    const [ password, setPassword ] = useState('')
+    const [ confirmPassword, setConfirmPassword ] = useState('')
 
     //Get user data from server
     const getUser = async () => {
@@ -39,35 +37,28 @@ export default function Home() {
 
         //If token exists
         if(token) {
+
+            //Decode token
             const decodedToken = decodeToken<decodedTokenProps>(token)
             
+            //Get user id from token
             const userId = decodedToken?.id
 
-            await fetch(`http://localhost:3333/users/${userId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-type': 'application/json; charset=UTF-8',
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then(async (res) => {
-                if (!res.ok) {
-                    const errorData = await res.json()
-                    throw new Error(errorData.message || 'Server error') // Throw error with server message if available, otherwise default message
-                }
-                return res.json()
-            })
-            .then((data) => {
-                console.log(data[0])
-                setUser({ ...user, ['name']: data[0].name})
-                setUser({ ...user, ['email']: data[0].email})
-                setUser({ ...user, ['password']: data[0].password})
-            })
-            .catch((err) => {
-                //Show errors to user
-                console.error(err)
-                toast.error(err.message || 'Error on login, please try again later')
-            })
+            //Call API
+            const data = await useFetch({ url: `http://localhost:3333/users/${userId}`, 
+                                        method: 'GET',
+                                        token: token })
+
+            if(data.ok) {
+                console.log(data.data[0])
+                setFirstName(data.data[0].name.split(" ")[0])
+                setFullName(data.data[0].name)
+                setEmail(data.data[0].email)
+            } else {
+                toast.error(data.data.message)
+                console.log(data)
+            }
+
         } else {
             navigate('/')
             window.location.reload()
@@ -79,106 +70,113 @@ export default function Home() {
         getUser()
     },[])
 
-    //Handle save button click
+    //Function called on save button click
     const handleSave = async () => {
         
+        //Set loading spinner to true
         setIsLoadingSave(true)
 
         //Validate input fields
         if(validateFields()) {
             
+            //Get token from localStorage
             const token = localStorage.getItem('token')
 
+            //If token exists
             if(token) {
+
+                //Decode token
                 const decodedToken = decodeToken<decodedTokenProps>(token)
                 
+                //Get user id from token
                 const userId = decodedToken?.id
 
-                await fetch(`http://localhost:3333/users/${userId}`, {
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        name: user.name,
-                        email: user.email,
-                        password: user.password
-                    }),
-                    headers: {
-                        'Content-type': 'application/json; charset=UTF-8',
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                .then(async (res) => {
-                    if (!res.ok) {
-                        const errorData = await res.json()
-                        throw new Error(errorData.message || 'Server error') // Throw error with server message if available, otherwise default message
-                    }
-                })
-                .then(() => {
+                //Call API
+                const data = await useFetch({ url: `http://localhost:3333/users/${userId}`, 
+                                            method: 'PUT',
+                                            body: {
+                                                name: fullName,
+                                                email: email,
+                                                password: password
+                                            },
+                                            token: token })
+
+                if(data.ok) {
+                    console.log(data)
                     toast.success('Data updated successfully')
-                })
-                .catch((err) => {
-                    //Show errors to user
-                    console.error(err)
-                    toast.error(err.message || 'Error on login, please try again later')
-                })
+                    setUpdate(false)
+                } else {
+                    console.log(data)
+                    toast.error(data.data.message)
+                }
+
             } else {
                 navigate('/')
                 window.location.reload()
             }
-
-            setUpdate(false)
         }
 
+        //Set loading spinner to false
         setIsLoadingSave(false)
     }
 
     //Handle delete button click
     const handleDelete = async () => {
 
+        //Set loading spinner to true
         setIsLoadingDelete(true)
         
+        //Get token from localstorage
         const token = localStorage.getItem('token')
 
+        //If token exists
         if(token) {
+
+            //Decode token
             const decodedToken = decodeToken<decodedTokenProps>(token)
             
+            //Get user id from token
             const userId = decodedToken?.id
 
-            await fetch(`http://localhost:3333/users/${userId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-type': 'application/json; charset=UTF-8',
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then(async (res) => {
-                if (!res.ok) {
-                    const errorData = await res.json()
-                    throw new Error(errorData.message || 'Server error') // Throw error with server message if available, otherwise default message
-                }
-            })
-            .then(() => {
+            //Call API
+            const data = await useFetch({ url: `http://localhost:3333/users/${userId}`, 
+                                        method: 'DELETE',
+                                        token: token })
+
+            if(data.ok) {
+                console.log(data)
                 toast.success('Account deleted successfully')
+                setFirstName('')
+                setFullName('')
+                setEmail('')
+                setPassword('')
+                setConfirmPassword('')
                 localStorage.removeItem('token')
                 setTimeout(() => {
                     navigate('/')
                     window.location.reload()
                 }, 2000)
-            })
-            .catch((err) => {
-                //Show errors to user
-                console.error(err)
-                toast.error(err.message || 'Error on login, please try again later')
-            })
+            } else {
+                console.log(data)
+                toast.error(data.data.message)
+            }
+
         } else {
             navigate('/')
             window.location.reload()
         }
 
+        //Set loading spinner to false
         setIsLoadingDelete(false)
     }
 
     //Handle logout button click
     const handleLogout = () => {
+        setFirstName('')
+        setFullName('')
+        setEmail('')
+        setPassword('')
+        setConfirmPassword('')
         localStorage.removeItem('token')
         navigate('/')
         window.location.reload()
@@ -188,17 +186,17 @@ export default function Home() {
     const validateFields = () => {
         
         //Custom hook to validate email
-        let emailError = useEmail(user.email, true)
+        let emailError = useEmail(email, true)
 
-        if(!user.name) {
+        if(!fullName) {
             toast.error('Name is required')
         } else if (emailError) {
             toast.error(emailError)
-        } else if(user.password && !user.confirmPassword) {
+        } else if(password && !confirmPassword) {
             toast.error('Both password fields are required')
-        } else if(!user.password && user.confirmPassword) {
+        } else if(!password && confirmPassword) {
             toast.error('Both password fields are required')
-        } else if(user.password !== user.confirmPassword) {
+        } else if(password !== confirmPassword) {
             toast.error('Passwords does not match')
         } else {
             return true
@@ -215,18 +213,16 @@ export default function Home() {
             </div> :
             <div className={classes.title}>
                 <FaUserCheck fill="#D63AFF" size="35px" />
-                <h1>Welcome, {user.name}</h1>
+                <h1>Welcome, {firstName}</h1>
             </div> }
             { update ? 
-            <Input inputType="text" inputPlaceholder="Enter your name..." inputOnChange={(e) => {handleChange('name',e.target.value)}} inputDefaultValue={user.name} /> : 
-            <p>Name: {user.name}</p> }
+            <Input inputType="text" inputPlaceholder="Enter your name..." inputOnChange={(e) => {setFullName(e.target.value)}} inputDefaultValue={fullName} /> : 
+            <p>Name: {fullName}</p> }
             { update ? 
-            <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {handleChange('email',e.target.value)}} inputDefaultValue={user.email} /> :
-            <p>Email: {user.email}</p> }
-            { update ? 
-            <Input inputType="password" inputPlaceholder="Enter your new password..." inputOnChange={(e) => {handleChange('password',e.target.value)}} /> :
-            <p>Password: {user.password}</p> }
-            { update && <Input inputType="password" inputPlaceholder="Confirm your new password..." inputOnChange={(e) => {handleChange('confirmPassword',e.target.value)}} /> }
+            <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {setEmail(e.target.value)}} inputDefaultValue={email} /> :
+            <p>Email: {email}</p> }
+            { update && <Input inputType="password" inputPlaceholder="Enter your new password..." inputOnChange={(e) => {setPassword(e.target.value)}} /> }
+            { update && <Input inputType="password" inputPlaceholder="Confirm your new password..." inputOnChange={(e) => {setConfirmPassword(e.target.value)}} /> }
             { update ?
             <div className={classes.buttons}>
                 <Button buttonStyle="pink" buttonTitle="Save" buttonOnClick={handleSave} isLoading={isLoadingSave} />
