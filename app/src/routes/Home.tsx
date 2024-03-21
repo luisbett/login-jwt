@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import toast, { Toaster } from 'react-hot-toast'
 import { FaUserCheck, FaUserEdit } from "react-icons/fa"
 import { isExpired, decodeToken } from "react-jwt"
+import { useUserContext } from "../contexts/UserContext"
 import Input from "../components/Input"
 import Button from "../components/Button"
 import { decodedTokenProps } from "../types/decodedToken"
@@ -22,8 +23,10 @@ export default function Home() {
     const [ isLoadingSave, setIsLoadingSave ] = useState(false)
     const [ isLoadingDelete, setIsLoadingDelete ] = useState(false)
 
+    //Context used to fetch user data
+    const { user, setUser } = useUserContext()
+
     //States to control input fields
-    const [ firstName, setFirstName ] = useState('')
     const [ fullName, setFullName ] = useState('')
     const [ email, setEmail ] = useState('')
     const [ password, setPassword ] = useState('')
@@ -51,9 +54,11 @@ export default function Home() {
 
             if(data.ok) {
                 console.log(data.data[0])
-                setFirstName(data.data[0].name.split(" ")[0])
-                setFullName(data.data[0].name)
-                setEmail(data.data[0].email)
+                setUser({
+                    firstName: data.data[0].name.split(" ")[0],
+                    fullName: data.data[0].name,
+                    email: data.data[0].email
+                })
             } else {
                 toast.error(data.data.message)
                 console.log(data)
@@ -146,11 +151,11 @@ export default function Home() {
             if(data.ok) {
                 console.log(data)
                 toast.success('Account deleted successfully')
-                setFirstName('')
-                setFullName('')
-                setEmail('')
-                setPassword('')
-                setConfirmPassword('')
+                setUser({
+                    firstName: '',
+                    fullName: '',
+                    email: ''
+                })
                 localStorage.removeItem('token')
                 setTimeout(() => {
                     navigate('/')
@@ -172,11 +177,11 @@ export default function Home() {
 
     //Handle logout button click
     const handleLogout = () => {
-        setFirstName('')
-        setFullName('')
-        setEmail('')
-        setPassword('')
-        setConfirmPassword('')
+        setUser({
+            firstName: '',
+            fullName: '',
+            email: ''
+        })
         localStorage.removeItem('token')
         navigate('/')
         window.location.reload()
@@ -213,14 +218,14 @@ export default function Home() {
             </div> :
             <div className={classes.title}>
                 <FaUserCheck fill="#D63AFF" size="35px" />
-                <h1>Welcome, {firstName}</h1>
+                <h1>Welcome, {user?.firstName}</h1>
             </div> }
             { update ? 
-            <Input inputType="text" inputPlaceholder="Enter your name..." inputOnChange={(e) => {setFullName(e.target.value)}} inputDefaultValue={fullName} /> : 
-            <p>Name: {fullName}</p> }
+            <Input inputType="text" inputPlaceholder="Enter your name..." inputOnChange={(e) => {setFullName(e.target.value)}} inputDefaultValue={user?.fullName} /> : 
+            <p>Name: {user?.fullName}</p> }
             { update ? 
-            <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {setEmail(e.target.value)}} inputDefaultValue={email} /> :
-            <p>Email: {email}</p> }
+            <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {setEmail(e.target.value)}} inputDefaultValue={user?.email} /> :
+            <p>Email: {user?.email}</p> }
             { update && <Input inputType="password" inputPlaceholder="Enter your new password..." inputOnChange={(e) => {setPassword(e.target.value)}} /> }
             { update && <Input inputType="password" inputPlaceholder="Confirm your new password..." inputOnChange={(e) => {setConfirmPassword(e.target.value)}} /> }
             { update ?
