@@ -4,6 +4,8 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
 import { UserProvider } from './contexts/UserContext.tsx'
 
+import useToken from './hooks/useToken.ts'
+
 import App from './App.tsx'
 import Home from './routes/Home.tsx'
 import SignIn from './routes/SignIn.tsx'
@@ -12,8 +14,11 @@ import NotFound from './routes/NotFound.tsx'
 
 import './index.css'
 
-//If user is logged in
+//Get token
 const token = localStorage.getItem('token')
+
+//If token exists, check if it is a valid token
+const validToken = token && await useToken(token)
 
 const router = createBrowserRouter([
   {
@@ -22,7 +27,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: token ? <Navigate to="/home" replace /> : <SignIn />,
+        element: validToken ? <Navigate to="/home" replace /> : <SignIn />,
       },
       {
         path: '/signup',
@@ -30,7 +35,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/home',
-        element: token ? <Home /> : <Navigate to="/" replace />
+        element: validToken ? <Home /> : <Navigate to="/" replace />
       },
       {
         path: '*',

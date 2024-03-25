@@ -10,6 +10,7 @@ import { decodedTokenProps } from "../types/decodedToken"
 import classes from './Home.module.css'
 import useEmail from "../hooks/useEmail"
 import useFetch from "../hooks/useFetch"
+import useToken from "../hooks/useToken"
 
 export default function Home() {
 
@@ -38,8 +39,8 @@ export default function Home() {
         //Get token from localStorage
         const token = localStorage.getItem('token')
 
-        //If token exists
-        if(token) {
+        //If token exists and it is a valid token
+        if(token && await useToken(token)) {
 
             //Decode token
             const decodedToken = decodeToken<decodedTokenProps>(token)
@@ -87,8 +88,8 @@ export default function Home() {
             //Get token from localStorage
             const token = localStorage.getItem('token')
 
-            //If token exists
-            if(token) {
+            //If token exists and it is a valid token
+            if(token && await useToken(token)) {
 
                 //Decode token
                 const decodedToken = decodeToken<decodedTokenProps>(token)
@@ -134,8 +135,8 @@ export default function Home() {
         //Get token from localstorage
         const token = localStorage.getItem('token')
 
-        //If token exists
-        if(token) {
+        //If token exists and it is a valid token
+        if(token && await useToken(token)) {
 
             //Decode token
             const decodedToken = decodeToken<decodedTokenProps>(token)
