@@ -14,10 +14,11 @@ router.use(
     })
 )
 
+router.post('/auth/token', usersMiddleware.verifyToken)
 router.post('/auth/user', usersMiddleware.validateLogin)
-router.get('/users/:id', usersMiddleware.checkToken, usersController.findByID)
-router.post('/users', usersMiddleware.validateUser, usersController.createUser)
-router.put('/users/:id', usersMiddleware.checkToken, usersMiddleware.validateUser, usersController.updateUser)
-router.delete('/users/:id', usersMiddleware.checkToken, usersController.deleteUser)
+router.get('/users/:id', usersMiddleware.verifyToken, usersController.findByID)
+router.post('/users', usersMiddleware.validateCreate, usersController.createUser)
+router.put('/users/:id', usersMiddleware.verifyToken, usersMiddleware.validateUpdate, usersController.updateUser)
+router.delete('/users/:id', usersMiddleware.verifyToken, usersController.deleteUser)
 
 module.exports = router
