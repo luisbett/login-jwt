@@ -1,6 +1,6 @@
 import { KeyboardEvent, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import toast, { Toaster } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import { SiJsonwebtokens } from "react-icons/si"
 import Button from "../components/Button"
 import Input from "../components/Input"
@@ -77,12 +77,11 @@ export default function SignIn() {
 
     return(
         <div className={classes.container}>
-            <Toaster />
             <div className={classes.title}>
                 <SiJsonwebtokens fill="#D63AFF" size="35px" />
                 <h1>Login with JWT</h1>
             </div>
-            <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {setEmail(e.target.value)}} />
+            <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {setEmail(e.target.value)}} inputOnKeyDown={handleKeyDown} />
             <Input inputType="password" inputPlaceholder="Enter your password..." inputOnChange={(e) => {setPassword(e.target.value)}} inputOnKeyDown={handleKeyDown} />
             <Button buttonStyle="pink" buttonTitle="Sign in" buttonOnClick={handleClick} isLoading={isLoading} />
             <p>Are you new here? <Link to={'/signup'}>Register now</Link></p>

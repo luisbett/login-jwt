@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import toast, { Toaster } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import { FaUserCheck, FaUserEdit } from "react-icons/fa"
-import { isExpired, decodeToken } from "react-jwt"
+import { decodeToken } from "react-jwt"
 import { useUserContext } from "../contexts/UserContext"
 import Input from "../components/Input"
 import Button from "../components/Button"
@@ -51,7 +51,7 @@ export default function Home() {
             //Call API
             const data = await useFetch({ url: `http://localhost:3333/users/${userId}`, 
                                         method: 'GET',
-                                        token: token })
+                                        token })
 
             if(data.ok) {
                 console.log(data.data[0])
@@ -102,8 +102,8 @@ export default function Home() {
                                             method: 'PUT',
                                             body: {
                                                 name: fullName,
-                                                email: email,
-                                                password: password
+                                                email,
+                                                password
                                             },
                                             token: token })
 
@@ -147,7 +147,7 @@ export default function Home() {
             //Call API
             const data = await useFetch({ url: `http://localhost:3333/users/${userId}`, 
                                         method: 'DELETE',
-                                        token: token })
+                                        token })
 
             if(data.ok) {
                 console.log(data)
@@ -174,6 +174,13 @@ export default function Home() {
 
         //Set loading spinner to false
         setIsLoadingDelete(false)
+    }
+
+    //Handle update details button click
+    const handleUpdate = () => {
+        setFullName(user?.fullName || '')
+        setEmail(user?.email || '')
+        setUpdate(true)
     }
 
     //Handle logout button click
@@ -211,7 +218,6 @@ export default function Home() {
 
     return(
         <div className={classes.container}>
-            <Toaster />
             { update ? 
             <div className={classes.title}>
                 <FaUserEdit fill="#D63AFF" size="35px" />
@@ -235,7 +241,7 @@ export default function Home() {
                 <Button buttonStyle="red" buttonTitle="Delete account" buttonOnClick={handleDelete} isLoading={isLoadingDelete} />
             </div> :
             <div className={classes.buttons}>
-                <Button buttonStyle="pink" buttonTitle="Update details" buttonOnClick={() => {setUpdate(true)}}/>
+                <Button buttonStyle="pink" buttonTitle="Update details" buttonOnClick={handleUpdate}/>
                 <Button buttonStyle="red" buttonTitle="Log out" buttonOnClick={handleLogout}/>
             </div> }
         </div>

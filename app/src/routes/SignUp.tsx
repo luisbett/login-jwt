@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import toast, { Toaster } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import { FaUserPlus } from 'react-icons/fa'
 import Button from '../components/Button'
 import Input from '../components/Input'
@@ -79,7 +79,6 @@ export default function SignUp() {
 
     return(
         <div className={classes.container}>
-            <Toaster />
             <div className={classes.title}>
                 <FaUserPlus fill="#D63AFF" size="35px" />
                 <h1>Create an account</h1>
