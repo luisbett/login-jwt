@@ -29,7 +29,7 @@ const validateLogin = async (req, res, next) => {
     }
 
     try {
-        const secret = process.env.SECRET
+        const secret = process.env.SECRET_TOKEN
 
         const token = jwt.sign({ id: user[0].id }, secret, { expiresIn: '3d' })
 
@@ -110,7 +110,7 @@ const verifyToken = (req, res, next) => {
     }
 
     try {
-        const secret = process.env.SECRET
+        const secret = process.env.SECRET_TOKEN
 
         jwt.verify(token, secret)
 
