@@ -1,4 +1,4 @@
-import { KeyboardEvent, useState } from "react"
+import { KeyboardEvent, useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import toast from 'react-hot-toast'
 import { SiJsonwebtokens } from "react-icons/si"
@@ -7,6 +7,7 @@ import Input from "../components/Input"
 import classes from './SignIn.module.css'
 import useEmail from "../hooks/useEmail"
 import useFetch from "../hooks/useFetch"
+import useToken from "../hooks/useToken"
 
 export default function SignIn() {
 
@@ -19,6 +20,24 @@ export default function SignIn() {
     //States to control input fields
     const [ email, setEmail ] = useState('')
     const [ password, setPassword ] = useState('')
+
+    //Get user data from server
+    const verifyLogin = async () => {
+
+        //Get token from localStorage
+        const token = localStorage.getItem('token')
+
+        //If token exists and it is a valid token
+        if(token && await useToken(token)) {
+            navigate('/home')
+            window.location.reload()
+        }
+    }
+
+    //Set effect to verifyLogin function
+    useEffect(() => {
+        verifyLogin()
+    },[])
 
     //Function called when enter button is pressed
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {

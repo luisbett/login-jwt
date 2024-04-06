@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import { Toaster } from 'react-hot-toast'
 
@@ -11,20 +11,14 @@ import classes from './App.module.css'
 
 function App() {
 
-  //Get token
-  const token = localStorage.getItem('token')
-  
-  //If token exists, check if it is a valid token
-  const validToken = token //&& await useToken(token)
-
   return (
     <div className={classes.container}>
       <Toaster />
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={validToken ? <Navigate to="/home" replace /> : <SignIn />} />
+          <Route path='/' element={<SignIn />} />
           <Route path='/signup' element={<SignUp />} />
-          <Route path='/home' element={validToken ? <Home /> : <Navigate to="/" replace />} />
+          <Route path='/home' element={<Home />} />
           <Route path='*' element={<NotFound />} />
         </Routes>
       </BrowserRouter>
