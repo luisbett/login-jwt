@@ -1,18 +1,21 @@
 import { KeyboardEvent, useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import toast from 'react-hot-toast'
 import { SiJsonwebtokens } from "react-icons/si"
+import { useTokenContext } from "../contexts/TokenContext"
+import toast from 'react-hot-toast'
 import Button from "../components/Button"
 import Input from "../components/Input"
-import classes from './SignIn.module.css'
 import useEmail from "../hooks/useEmail"
 import useFetch from "../hooks/useFetch"
 import useToken from "../hooks/useToken"
+import classes from './SignIn.module.css'
 
 export default function SignIn() {
 
     //Navigation hook
     const navigate = useNavigate()
+
+    const { token, setToken } = useTokenContext()
 
     //State that controls loading spinner
     const [ isLoading, setIsLoading ] = useState(false)
@@ -21,16 +24,12 @@ export default function SignIn() {
     const [ email, setEmail ] = useState('')
     const [ password, setPassword ] = useState('')
 
-    //Get user data from server
+    //Verify if there is a valid token
     const verifyLogin = async () => {
-
-        //Get token from localStorage
-        const token = localStorage.getItem('token')
 
         //If token exists and it is a valid token
         if(token && await useToken(token)) {
             navigate('/home')
-            window.location.reload()
         }
     }
 
@@ -66,9 +65,8 @@ export default function SignIn() {
             if(data.ok) {
                 //Save token and navigate to home page
                 console.log(data)
-                localStorage.setItem('token',data.data.token)
+                setToken(data.data.token)
                 navigate('/home')
-                window.location.reload()
             } else {
                 console.log(data)
                 toast.error(data.data.message)

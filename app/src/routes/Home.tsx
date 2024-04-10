@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import toast from 'react-hot-toast'
-import { FaUserCheck, FaUserEdit } from "react-icons/fa"
 import { decodeToken } from "react-jwt"
+import { FaUserCheck, FaUserEdit } from "react-icons/fa"
 import { useUserContext } from "../contexts/UserContext"
+import { useTokenContext } from "../contexts/TokenContext"
+import { decodedTokenProps } from "../types/decodedToken"
+import toast from 'react-hot-toast'
 import Input from "../components/Input"
 import Button from "../components/Button"
-import { decodedTokenProps } from "../types/decodedToken"
 import classes from './Home.module.css'
 import useEmail from "../hooks/useEmail"
 import useFetch from "../hooks/useFetch"
@@ -16,6 +17,8 @@ export default function Home() {
 
     //Navigation hook
     const navigate = useNavigate()
+
+    const { token, setToken } = useTokenContext()
 
     //State to control if show inputs for editing fields
     const [ update, setUpdate ] = useState(false)
@@ -35,9 +38,6 @@ export default function Home() {
 
     //Get user data from server
     const getUser = async () => {
-
-        //Get token from localStorage
-        const token = localStorage.getItem('token')
 
         //If token exists and it is a valid token
         if(token && await useToken(token)) {
@@ -66,15 +66,15 @@ export default function Home() {
             }
 
         } else {
+            setToken('')
             navigate('/')
-            window.location.reload()
         }
     }
 
     //Set effect to getUser function
     useEffect(() => {
         getUser()
-    },[])
+    },[token])
 
     //Function called on save button click
     const handleSave = async () => {
@@ -84,9 +84,6 @@ export default function Home() {
 
         //Validate input fields
         if(validateFields()) {
-            
-            //Get token from localStorage
-            const token = localStorage.getItem('token')
 
             //If token exists and it is a valid token
             if(token && await useToken(token)) {
@@ -117,8 +114,8 @@ export default function Home() {
                 }
 
             } else {
+                setToken('')
                 navigate('/')
-                window.location.reload()
             }
         }
 
@@ -131,9 +128,6 @@ export default function Home() {
 
         //Set loading spinner to true
         setIsLoadingDelete(true)
-        
-        //Get token from localstorage
-        const token = localStorage.getItem('token')
 
         //If token exists and it is a valid token
         if(token && await useToken(token)) {
@@ -157,10 +151,9 @@ export default function Home() {
                     fullName: '',
                     email: ''
                 })
-                localStorage.removeItem('token')
+                setToken('')
                 setTimeout(() => {
                     navigate('/')
-                    window.location.reload()
                 }, 2000)
             } else {
                 console.log(data)
@@ -168,8 +161,8 @@ export default function Home() {
             }
 
         } else {
+            setToken('')
             navigate('/')
-            window.location.reload()
         }
 
         //Set loading spinner to false
@@ -190,9 +183,9 @@ export default function Home() {
             fullName: '',
             email: ''
         })
-        localStorage.removeItem('token')
+        //Call API to clear token from cookie ???
+        setToken('')
         navigate('/')
-        window.location.reload()
     }
 
     //Validate input fields

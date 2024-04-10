@@ -19,12 +19,14 @@ export default async function useFetch({url, method, body, token}: FetchProps) {
         var res = await fetch(url, {
             method: method,
             headers: headerContent,
-            body: JSON.stringify(body)
+            body: JSON.stringify(body),
+            credentials: 'include'
         })
     } else {
         var res = await fetch(url, {
             method: method,
-            headers: headerContent
+            headers: headerContent,
+            credentials: 'include'
         })
     }
 

@@ -13,9 +13,5 @@ export default async function useToken(token: string) {
                                 method: 'POST',
                                 token })
 
-    if(!data.ok) {
-        localStorage.removeItem('token')
-    }
-
     return data.ok
 }
