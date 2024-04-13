@@ -7,7 +7,7 @@ export default function Button({ buttonStyle, buttonTitle, buttonOnClick, isLoad
     return (
         <button className={`${classes[buttonStyle]}`} onClick={buttonOnClick}>
             { isLoading
-            ? <LoadingSpinner />
+            ? <LoadingSpinner spinnerSize='small' />
             : <span>{buttonTitle}</span> }
         </button>
     )

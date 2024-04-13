@@ -4,7 +4,7 @@ import { decodeToken } from "react-jwt"
 import { FaUserCheck, FaUserEdit } from "react-icons/fa"
 import { useUserContext } from "../contexts/UserContext"
 import { useTokenContext } from "../contexts/TokenContext"
-import { decodedTokenProps } from "../types/decodedToken"
+import { DecodedTokenProps } from "../types/decodedToken"
 import toast from 'react-hot-toast'
 import Input from "../components/Input"
 import Button from "../components/Button"
@@ -12,18 +12,20 @@ import classes from './Home.module.css'
 import useEmail from "../hooks/useEmail"
 import useFetch from "../hooks/useFetch"
 import useToken from "../hooks/useToken"
+import LoadingSpinner from "../components/LoadingSpinner"
 
 export default function Home() {
 
     //Navigation hook
     const navigate = useNavigate()
 
-    const { token, setToken } = useTokenContext()
+    let { token, setToken } = useTokenContext()
 
     //State to control if show inputs for editing fields
     const [ update, setUpdate ] = useState(false)
 
     //States to control loading spinner buttons
+    const [ isLoadingEffect, setIsLoadingEffect ] = useState(true)
     const [ isLoadingSave, setIsLoadingSave ] = useState(false)
     const [ isLoadingDelete, setIsLoadingDelete ] = useState(false)
 
@@ -39,14 +41,22 @@ export default function Home() {
     //Get user data from server
     const getUser = async () => {
 
+        setIsLoadingEffect(true)
+
         //If token exists and it is a valid token
-        if(token && await useToken(token)) {
+        if(token = await useToken(token || '')) {
 
             //Decode token
-            const decodedToken = decodeToken<decodedTokenProps>(token)
+            const decodedToken = decodeToken<DecodedTokenProps>(token)
+            
+            //Get refresh token from token
+            const refresh_token = decodedToken?.refreshToken || ''
+
+            //Decode refresh token
+            const decodedRefreshToken = decodeToken<DecodedTokenProps>(refresh_token)
             
             //Get user id from token
-            const userId = decodedToken?.id
+            const userId = decodedRefreshToken?.id || ''
 
             //Call API
             const data = await useFetch({ url: `http://localhost:3333/users/${userId}`, 
@@ -69,6 +79,8 @@ export default function Home() {
             setToken('')
             navigate('/')
         }
+
+        setIsLoadingEffect(false)
     }
 
     //Set effect to getUser function
@@ -86,13 +98,19 @@ export default function Home() {
         if(validateFields()) {
 
             //If token exists and it is a valid token
-            if(token && await useToken(token)) {
+            if(token = await useToken(token || '')) {
 
                 //Decode token
-                const decodedToken = decodeToken<decodedTokenProps>(token)
+                const decodedToken = decodeToken<DecodedTokenProps>(token)
+                
+                //Get refresh token from token
+                const refresh_token = decodedToken?.refreshToken || ''
+
+                //Decode refresh token
+                const decodedRefreshToken = decodeToken<DecodedTokenProps>(refresh_token)
                 
                 //Get user id from token
-                const userId = decodedToken?.id
+                const userId = decodedRefreshToken?.id || ''
 
                 //Call API
                 const data = await useFetch({ url: `http://localhost:3333/users/${userId}`, 
@@ -107,7 +125,10 @@ export default function Home() {
                 if(data.ok) {
                     console.log(data)
                     toast.success('Data updated successfully')
-                    setUpdate(false)
+                    setTimeout(() => {
+                        setUpdate(false)
+                        navigate(0) //Refresh component
+                    }, 2000)
                 } else {
                     console.log(data)
                     toast.error(data.data.message)
@@ -130,13 +151,19 @@ export default function Home() {
         setIsLoadingDelete(true)
 
         //If token exists and it is a valid token
-        if(token && await useToken(token)) {
+        if(token = await useToken(token || '')) {
 
             //Decode token
-            const decodedToken = decodeToken<decodedTokenProps>(token)
+            const decodedToken = decodeToken<DecodedTokenProps>(token)
+                
+            //Get refresh token from token
+            const refresh_token = decodedToken?.refreshToken || ''
+
+            //Decode refresh token
+            const decodedRefreshToken = decodeToken<DecodedTokenProps>(refresh_token)
             
             //Get user id from token
-            const userId = decodedToken?.id
+            const userId = decodedRefreshToken?.id || ''
 
             //Call API
             const data = await useFetch({ url: `http://localhost:3333/users/${userId}`, 
@@ -177,13 +204,17 @@ export default function Home() {
     }
 
     //Handle logout button click
-    const handleLogout = () => {
+    const handleLogout = async () => {
+
+        //Call API to clear token from httpOnly cookie
+        await useFetch({ url: 'http://localhost:3333/auth/delete', 
+                        method: 'POST',
+                        token: '' })
         setUser({
             firstName: '',
             fullName: '',
             email: ''
         })
-        //Call API to clear token from cookie ???
         setToken('')
         navigate('/')
     }
@@ -211,32 +242,36 @@ export default function Home() {
 
     return(
         <div className={classes.container}>
-            { update ? 
-            <div className={classes.title}>
-                <FaUserEdit fill="#D63AFF" size="35px" />
-                <h1>Update your details</h1>
-            </div> :
-            <div className={classes.title}>
-                <FaUserCheck fill="#D63AFF" size="35px" />
-                <h1>Welcome, {user?.firstName}</h1>
-            </div> }
-            { update ? 
-            <Input inputType="text" inputPlaceholder="Enter your name..." inputOnChange={(e) => {setFullName(e.target.value)}} inputDefaultValue={user?.fullName} /> : 
-            <p>Name: {user?.fullName}</p> }
-            { update ? 
-            <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {setEmail(e.target.value)}} inputDefaultValue={user?.email} /> :
-            <p>Email: {user?.email}</p> }
-            { update && <Input inputType="password" inputPlaceholder="Enter your new password..." inputOnChange={(e) => {setPassword(e.target.value)}} /> }
-            { update && <Input inputType="password" inputPlaceholder="Confirm your new password..." inputOnChange={(e) => {setConfirmPassword(e.target.value)}} /> }
-            { update ?
-            <div className={classes.buttons}>
-                <Button buttonStyle="pink" buttonTitle="Save" buttonOnClick={handleSave} isLoading={isLoadingSave} />
-                <Button buttonStyle="red" buttonTitle="Delete account" buttonOnClick={handleDelete} isLoading={isLoadingDelete} />
-            </div> :
-            <div className={classes.buttons}>
-                <Button buttonStyle="pink" buttonTitle="Update details" buttonOnClick={handleUpdate}/>
-                <Button buttonStyle="red" buttonTitle="Log out" buttonOnClick={handleLogout}/>
-            </div> }
+            { isLoadingEffect ? 
+            <LoadingSpinner spinnerSize='big' /> : 
+            <>
+                { update ? 
+                <div className={classes.title}>
+                    <FaUserEdit fill="#D63AFF" size="35px" />
+                    <h1>Update your details</h1>
+                </div> :
+                <div className={classes.title}>
+                    <FaUserCheck fill="#D63AFF" size="35px" />
+                    <h1>Welcome, {user?.firstName}</h1>
+                </div> }
+                { update ? 
+                <Input inputType="text" inputPlaceholder="Enter your name..." inputOnChange={(e) => {setFullName(e.target.value)}} inputDefaultValue={user?.fullName} /> : 
+                <p>Name: {user?.fullName}</p> }
+                { update ? 
+                <Input inputType="email" inputPlaceholder="Enter your email..." inputOnChange={(e) => {setEmail(e.target.value)}} inputDefaultValue={user?.email} /> :
+                <p>Email: {user?.email}</p> }
+                { update && <Input inputType="password" inputPlaceholder="Enter your new password..." inputOnChange={(e) => {setPassword(e.target.value)}} /> }
+                { update && <Input inputType="password" inputPlaceholder="Confirm your new password..." inputOnChange={(e) => {setConfirmPassword(e.target.value)}} /> }
+                { update ?
+                <div className={classes.buttons}>
+                    <Button buttonStyle="pink" buttonTitle="Save" buttonOnClick={handleSave} isLoading={isLoadingSave} />
+                    <Button buttonStyle="red" buttonTitle="Delete account" buttonOnClick={handleDelete} isLoading={isLoadingDelete} />
+                </div> :
+                <div className={classes.buttons}>
+                    <Button buttonStyle="pink" buttonTitle="Update details" buttonOnClick={handleUpdate}/>
+                    <Button buttonStyle="red" buttonTitle="Log out" buttonOnClick={handleLogout}/>
+                </div> }
+            </> }
         </div>
     )
 }

@@ -15,7 +15,7 @@ export default function SignIn() {
     //Navigation hook
     const navigate = useNavigate()
 
-    const { token, setToken } = useTokenContext()
+    let { token, setToken } = useTokenContext()
 
     //State that controls loading spinner
     const [ isLoading, setIsLoading ] = useState(false)
@@ -28,7 +28,7 @@ export default function SignIn() {
     const verifyLogin = async () => {
 
         //If token exists and it is a valid token
-        if(token && await useToken(token)) {
+        if(token = await useToken(token || '')) {
             navigate('/home')
         }
     }

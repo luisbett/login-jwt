@@ -1,3 +1,4 @@
-export type decodedTokenProps = {
-    id: string
+export type DecodedTokenProps = {
+    id: string,
+    refreshToken: string
 }

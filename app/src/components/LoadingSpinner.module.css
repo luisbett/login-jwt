@@ -1,4 +1,9 @@
-.spinner {
+.small {
     height: 1.3rem;
     width: 1.3rem;
+}
+
+.big {
+    height: 3rem;
+    width: 3rem;
 }
