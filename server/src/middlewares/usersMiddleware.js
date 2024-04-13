@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
+const { jwtDecode } = require('jwt-decode')
 
 const usersModel = require('../models/usersModel')
 
 //Validate user login
-const validateLogin = async (req, res, next) => {
+const validateLogin = async (req, res) => {
     
     let { email, password } = req.body
 
@@ -29,19 +30,18 @@ const validateLogin = async (req, res, next) => {
     }
 
     try {
-        const secret = process.env.SECRET_TOKEN
+        const { SECRET_TOKEN, SECRET_REFRESH_TOKEN } = process.env
 
-        const token = jwt.sign({ id: user[0].id }, secret, { expiresIn: '3d' })
+        const refreshToken = jwt.sign({ id: user[0].id }, SECRET_REFRESH_TOKEN, { expiresIn: '300s' })
+        const token = jwt.sign({ refreshToken }, SECRET_TOKEN, { expiresIn: '30s' })
 
-        res.status(200).json({ message: 'Succesfully authentication', token })
+        return res.cookie('refresh_token', refreshToken, { httpOnly: true, maxAge: 5 * 60 * 1000 }).status(200).json({ message: 'Succesfully authentication', token })
 
     } catch(error) {
         console.log(error)
 
         return res.status(500).json({ message: 'Error on server, please try again later' })
     }
-
-    next()
 }
 
 //Validate user create
@@ -110,9 +110,9 @@ const verifyToken = (req, res, next) => {
     }
 
     try {
-        const secret = process.env.SECRET_TOKEN
+        const { SECRET_TOKEN } = process.env
 
-        jwt.verify(token, secret)
+        jwt.verify(token, SECRET_TOKEN)
 
         //If the route is just for verifying the token, return success
         if(req.path === '/auth/token') {
@@ -125,9 +125,56 @@ const verifyToken = (req, res, next) => {
     }
 }
 
+//Refresh token
+const refreshToken = (req, res) => {
+
+    const { SECRET_TOKEN, SECRET_REFRESH_TOKEN } = process.env
+
+    const { refresh_token } = req.cookies
+
+    const decodedToken = jwtDecode(refresh_token)
+    
+    const userId = decodedToken.id
+
+    const refreshToken = jwt.sign({ id: userId }, SECRET_REFRESH_TOKEN, { expiresIn: '300s' })
+    const token = jwt.sign({ refreshToken }, SECRET_TOKEN, { expiresIn: '30s' })
+
+    return res.cookie('refresh_token', refreshToken, { httpOnly: true, maxAge: 5 * 60 * 1000 }).status(200).json({ message: 'Succesfully new token', token })
+}
+
+//Verify refresh token
+const verifyRefreshToken = (req, res, next) => {
+
+    const { refresh_token } = req.cookies
+
+    if(!refresh_token) {
+        return res.status(401).json({ message: 'Refresh token not provided' })
+    }
+
+    try {
+        const { SECRET_REFRESH_TOKEN } = process.env
+
+        jwt.verify(refresh_token, SECRET_REFRESH_TOKEN)
+
+        next()
+    } catch(error) {
+        return res.status(400).json({ message: 'Invalid refresh token' })
+    }
+}
+
+//Delete refresh token
+const deleteRefreshToken = (_req, res) => {
+
+    return res.clearCookie('refresh_token', { httpOnly: true }).status(200).json({ message: 'Cookie deleted successfully' })
+
+}
+
 module.exports = {
     validateLogin,
     validateCreate,
     validateUpdate,
-    verifyToken
+    verifyToken,
+    refreshToken,
+    verifyRefreshToken,
+    deleteRefreshToken
 }
