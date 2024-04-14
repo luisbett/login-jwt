@@ -98,6 +98,18 @@ const validateUpdate = async (req, res, next) => {
     next()
 }
 
+//Validate id in params
+const verifyId = (req, res, next) => {
+
+    const { id } = req.params
+
+    if(id === 'undefined' || id === 'null') {
+        return res.status(422).json({ message: 'Param id is required' })
+    }
+
+    next()
+}
+
 //Validate token
 const verifyToken = (req, res, next) => {
 
@@ -173,6 +185,7 @@ module.exports = {
     validateLogin,
     validateCreate,
     validateUpdate,
+    verifyId,
     verifyToken,
     refreshToken,
     verifyRefreshToken,
