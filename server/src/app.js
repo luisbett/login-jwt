@@ -9,7 +9,7 @@ const app = express()
 app.use(
     cors({
         credentials: true,
-        origin: 'https://luisbett-login-jwt.netlify.app/'
+        origin: 'https://luisbett-login-jwt.netlify.app'
     })
 )
 
