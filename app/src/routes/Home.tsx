@@ -59,7 +59,7 @@ export default function Home() {
             const userId = decodedRefreshToken?.id || ''
 
             //Call API
-            const data = await useFetch({ url: `http://localhost:3333/users/${userId}`, 
+            const data = await useFetch({ url: `https://login-jwt.onrender.com/users/${userId}`, 
                                         method: 'GET',
                                         token })
 
@@ -113,7 +113,7 @@ export default function Home() {
                 const userId = decodedRefreshToken?.id || ''
 
                 //Call API
-                const data = await useFetch({ url: `http://localhost:3333/users/${userId}`, 
+                const data = await useFetch({ url: `https://login-jwt.onrender.com/users/${userId}`, 
                                             method: 'PUT',
                                             body: {
                                                 name: fullName,
@@ -166,7 +166,7 @@ export default function Home() {
             const userId = decodedRefreshToken?.id || ''
 
             //Call API
-            const data = await useFetch({ url: `http://localhost:3333/users/${userId}`, 
+            const data = await useFetch({ url: `https://login-jwt.onrender.com/users/${userId}`, 
                                         method: 'DELETE',
                                         token })
 
@@ -207,7 +207,7 @@ export default function Home() {
     const handleLogout = async () => {
 
         //Call API to clear token from httpOnly cookie
-        await useFetch({ url: 'http://localhost:3333/auth/delete', 
+        await useFetch({ url: 'https://login-jwt.onrender.com/auth/delete', 
                         method: 'POST',
                         token: '' })
         setUser({

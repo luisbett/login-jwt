@@ -18,7 +18,7 @@ export default async function useToken(token: string) {
     if(refreshToken) {
 
         //Call API
-        const newData = await useFetch({ url: 'http://localhost:3333/auth/refresh', 
+        const newData = await useFetch({ url: 'https://login-jwt.onrender.com/auth/refresh', 
                                         method: 'GET',
                                         token: '' })
 
@@ -31,7 +31,7 @@ export default async function useToken(token: string) {
     if(token) {
 
         //Call API
-        const data = await useFetch({ url: `http://localhost:3333/auth/token`, 
+        const data = await useFetch({ url: `https://login-jwt.onrender.com/auth/token`, 
                                     method: 'POST',
                                     token })
 

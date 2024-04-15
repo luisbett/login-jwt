@@ -54,7 +54,7 @@ export default function SignIn() {
         //Validate input fields
         if(validateFields()) {
 
-            const data = await useFetch({ url: 'http://localhost:3333/auth/user', 
+            const data = await useFetch({ url: 'https://login-jwt.onrender.com/auth/user', 
                                         method: 'POST', 
                                         body: {
                                             email,

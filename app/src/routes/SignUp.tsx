@@ -32,7 +32,7 @@ export default function SignUp() {
         if (validateFields()) {
 
             //Call API
-            const data = await useFetch({ url: 'http://localhost:3333/users', 
+            const data = await useFetch({ url: 'https://login-jwt.onrender.com/users', 
                                         method: 'POST', 
                                         body: { 
                                             name,
