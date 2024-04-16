@@ -35,7 +35,7 @@ const validateLogin = async (req, res) => {
         const refreshToken = jwt.sign({ id: user[0].id }, SECRET_REFRESH_TOKEN, { expiresIn: '300s' })
         const token = jwt.sign({ refreshToken }, SECRET_TOKEN, { expiresIn: '30s' })
 
-        return res.cookie('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 5 * 60 * 1000 }).status(200).json({ message: 'Succesfully authentication', token })
+        return res.cookie('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 5 * 60 * 1000 }).status(200).json({ message: 'Succesfully authentication', token })
 
     } catch(error) {
         console.log(error)
@@ -151,7 +151,7 @@ const refreshToken = (req, res) => {
     const refreshToken = jwt.sign({ id: userId }, SECRET_REFRESH_TOKEN, { expiresIn: '300s' })
     const token = jwt.sign({ refreshToken }, SECRET_TOKEN, { expiresIn: '30s' })
 
-    return res.cookie('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 5 * 60 * 1000 }).status(200).json({ message: 'Succesfully new token', token })
+    return res.cookie('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 5 * 60 * 1000 }).status(200).json({ message: 'Succesfully new token', token })
 }
 
 //Verify refresh token
@@ -177,7 +177,7 @@ const verifyRefreshToken = (req, res, next) => {
 //Delete refresh token
 const deleteRefreshToken = (_req, res) => {
 
-    return res.clearCookie('refresh_token', { httpOnly: true, secure: true, sameSite: 'lax' }).status(200).json({ message: 'Cookie deleted successfully' })
+    return res.clearCookie('refresh_token', { httpOnly: true, secure: true, sameSite: 'none' }).status(200).json({ message: 'Cookie deleted successfully' })
 
 }
 
