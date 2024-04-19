@@ -172,6 +172,10 @@ export default function Home() {
 
             if(data.ok) {
                 console.log(data)
+                //Call API to clear token from httpOnly cookie
+                await useFetch({ url: 'https://login-jwt.onrender.com/auth/delete', 
+                                method: 'POST',
+                                token: '' })
                 toast.success('Account deleted successfully')
                 setUser({
                     firstName: '',
