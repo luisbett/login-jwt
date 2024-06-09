@@ -18,7 +18,19 @@ This project is completed.
 
 ![screenshot_3](/app/public/screenshot_3.png)
 
-![screenshot_3](/app/public/screenshot_4.png)
+![screenshot_4](/app/public/screenshot_4.png)
+
+![screenshot_5](/app/public/screenshot_5.png)
+
+![screenshot_6](/app/public/screenshot_6.png)
+
+![screenshot_7](/app/public/screenshot_7.png)
+
+![screenshot_8](/app/public/screenshot_8.png)
+
+![screenshot_9](/app/public/screenshot_9.png)
+
+![screenshot_10](/app/public/screenshot_10.png)
 
 ## About
 
@@ -35,31 +47,13 @@ In this project, I used different packages:
 * [**react-hot-toast**](https://react-hot-toast.com/) for the notifications in the project;
 * [**react-jwt**](https://www.npmjs.com/package/react-jwt) for functionalities related to JWT tokens in the project;
 
-I spent a considerable time learning about types of authentication and authorization and how it works. Also, I learned a lot about JWT tokens and where to store data related to them to avoid XSS and CSFR attacks.
+I spent a considerable time learning about types of authentication and authorization and how it works. Also, I learned a lot about JWT tokens and where to store data related to them to avoid XSS and CSRF attacks.
 
 I chose to use Vite to minimize the initial setup and invest more time in working on the project's business logic.
 
 ## Installation and Setup Instructions
 
 Clone down this repository. You will need `node` and `npm` installed globally on your machine.
-
-**Frontend**
-
-Go to app folder:
-
-`cd app`
-
-Installation:
-
-`npm install`
-
-To Start Server:
-
-`npm run dev`
-
-To Visit App:
-
-`localhost:5173`
 
 **Backend**
 
@@ -78,3 +72,21 @@ To Start Server:
 To Visit App:
 
 `localhost:3333`
+
+**Frontend**
+
+Go to app folder:
+
+`cd app`
+
+Installation:
+
+`npm install`
+
+To Start Server:
+
+`npm run dev`
+
+To Visit App:
+
+`localhost:5173`
