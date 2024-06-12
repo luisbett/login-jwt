@@ -57,7 +57,7 @@ Clone down this repository. You will need `node` and `npm` installed globally on
 
 **Backend**
 
-Go to server folder
+Go to server folder:
 
 `cd server`
 
